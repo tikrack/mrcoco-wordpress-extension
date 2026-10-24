@@ -12,9 +12,6 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-/**
- * تنظیمات پیش‌فرض افزونه
- */
 function mrcoco_default_options() {
     return array(
         'enabled'         => 1,
@@ -23,9 +20,6 @@ function mrcoco_default_options() {
     );
 }
 
-/**
- * ثبت تنظیمات در هسته وردپرس
- */
 function mrcoco_register_settings() {
     $defaults = mrcoco_default_options();
 
@@ -62,9 +56,6 @@ function mrcoco_register_settings() {
 }
 add_action( 'admin_init', 'mrcoco_register_settings' );
 
-/**
- * ایجاد منو در پیشخوان وردپرس (زیرمجموعه تنظیمات)
- */
 function mrcoco_add_admin_menu() {
     add_options_page(
         'تنظیمات چت‌بات MrCoco',
@@ -76,9 +67,6 @@ function mrcoco_add_admin_menu() {
 }
 add_action( 'admin_menu', 'mrcoco_add_admin_menu' );
 
-/**
- * ظاهر صفحه تنظیمات
- */
 function mrcoco_settings_page_html() {
     if ( ! current_user_can( 'manage_options' ) ) {
         return;
@@ -131,9 +119,6 @@ function mrcoco_settings_page_html() {
     <?php
 }
 
-/**
- * تبدیل الگوهای دارای ستاره (*) به فرمت Regex
- */
 function mrcoco_pattern_to_regex( $pattern ) {
     if ( empty( $pattern ) ) {
         return '';
@@ -146,9 +131,6 @@ function mrcoco_pattern_to_regex( $pattern ) {
     return '#^' . $escaped . '$#i';
 }
 
-/**
- * تطبیق آدرس URL با الگوها
- */
 function mrcoco_matches_patterns( $path, $patterns_text ) {
     if ( empty( $patterns_text ) ) {
         return false;
@@ -163,41 +145,30 @@ function mrcoco_matches_patterns( $path, $patterns_text ) {
     return false;
 }
 
-/**
- * شرط بررسی وضعیت نمایش اسکریپت
- */
 function mrcoco_should_inject_script() {
-    // 1. اگر در پیشخوان ادمین باشد، اجرا نشود
     if ( is_admin() ) {
         return false;
     }
 
-    // 2. اگر کلاً غیرفعال شده باشد
     if ( ! (bool) get_option( 'mrcoco_enabled', 1 ) ) {
         return false;
     }
 
-    // گرفتن مسیر صفحه فعلی (بدون پارامترهای query)
     $uri  = isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : '/';
     $path = parse_url( $uri, PHP_URL_PATH );
     if ( empty( $path ) ) {
         $path = '/';
     }
 
-    // 3. اگر مسیر در لیست Ignore باشد، نمایش نده
     $ignore = get_option( 'mrcoco_ignore_patterns', '' );
     if ( mrcoco_matches_patterns( $path, $ignore ) ) {
         return false;
     }
 
-    // 4. بررسی لیست مجازها (Allow)
     $allow = get_option( 'mrcoco_allow_patterns', '/*' );
     return mrcoco_matches_patterns( $path, $allow );
 }
 
-/**
- * تزریق اسکریپت چت‌بات در انتهای صفحه (فوتر)
- */
 function mrcoco_inject_chat_script() {
     if ( mrcoco_should_inject_script() ) {
         ?>
